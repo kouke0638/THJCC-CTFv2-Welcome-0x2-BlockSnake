@@ -1,0 +1,345 @@
+/* ============================= */
+/* 全域設定 */
+/* ============================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ============================= */
+/* 外層容器 */
+/* ============================= */
+#snake-game-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    overflow: hidden;
+    padding-top: 15px;
+}
+
+/* ============================= */
+/* 主要遊戲容器 */
+/* ============================= */
+#snake-game-container {
+    background: rgba(255, 255, 255, 0.1);
+    background-color: #383B3F;
+    padding: 2.5rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.8);
+}
+#snake-game-container.show {
+    opacity: 1;
+    transform: scale(1);
+}
+#snake-game-container:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* ============================= */
+/* 遊戲板 Game Board */
+/* ============================= */
+#game-board {
+    width: 400px;
+    height: 120px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    margin: 1.5rem auto;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================= */
+/* 貪吃蛇身體 snake-part */
+/* ============================= */
+.snake-part {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(45deg, #00ff87 0%, #60efff 100%);
+    position: absolute;
+    border-radius: 6px;
+    transition: all 0.1s linear;
+    box-shadow: 0 0 15px rgba(96, 239, 255, 0.5);
+}
+.snake-part:first-child {
+    background: linear-gradient(45deg, #ff3366 0%, #ff9933 100%);
+    border-radius: 8px;
+    transform: scale(1.1);
+}
+
+/* ============================= */
+/* 食物 food */
+/* ============================= */
+.food {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(45deg, #ff3366 0%, #ff99cc 100%);
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 51, 102, 0.7);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ============================= */
+/* 分數 Score */
+/* ============================= */
+.score {
+    font-size: 2rem;
+    margin: 1rem 0;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+/* ============================= */
+/* Flag 顯示區域 */
+/* ============================= */
+.flag {
+    color: #00ff87;
+    font-weight: bold;
+    margin: 1rem 0;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    display: none;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
+    padding: 1rem;
+    background: rgba(0, 255, 135, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.flag:hover {
+    background: rgba(0, 255, 135, 0.2);
+    transform: scale(1.05);
+}
+
+/* ============================= */
+/* 按鈕 */
+/* ============================= */
+#snake-game-button {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    background: linear-gradient(45deg, #00ff87 0%, #60efff 100%);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin: 1.5rem auto;
+    display: block;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+}
+#snake-game-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(96, 239, 255, 0.4);
+}
+#snake-game-button:active {
+    transform: translateY(0);
+}
+#snake-game-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ============================= */
+/* 控制鍵顯示 */
+/* ============================= */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 3rem !important;
+}
+.control-key {
+    display: inline-block;
+    padding: 0.8rem !important;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.control-key:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ============================= */
+/* 倒數計時 Overlay */
+/* ============================= */
+.countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    z-index: 999;
+    color: white;
+    font-size: 6rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    border-radius: 20px;
+}
+.countdown-text {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem 2rem !important;
+    border-radius: 10px;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+}
+.countdown-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.countdown-overlay.active .countdown-text {
+    transform: scale(1);
+    animation: countdownPulse 1s ease infinite;
+}
+@keyframes countdownPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ============================= */
+/* 遊戲結束 Overlay */
+/* ============================= */
+.game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    border-radius: 20px;
+}
+.game-over-overlay.visible {
+    opacity: 1;
+    display: block;
+}
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff3366;
+    font-weight: bold;
+    display: none;
+    text-align: center;
+    font-size: 3rem;
+    text-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+    z-index: 1000;
+    width: 100%;
+}
+.game-over-text {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem 0;
+    position: relative;
+    transform: translateY(-50px);
+    opacity: 0;
+    animation: slideIn 0.5s ease forwards;
+}
+.game-over-subtitle {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+    animation-delay: 0.3s;
+}
+
+/* ============================= */
+/* 複製提示 Tooltip */
+/* ============================= */
+.copied-tooltip {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 255, 135, 0.9);
+    color: #000;
+    padding: 1rem !important;
+    border-radius: 8px;
+    font-weight: bold;
+    display: none;
+    animation: fadeInOut 1.5s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1.2rem;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -20px); }
+    20% { opacity: 1; transform: translate(-50%, 0); }
+    80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+@keyframes slideIn {
+    from { 
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================= */
+/* 額外的晃動動畫 (遊戲結束時) */
+/* ============================= */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

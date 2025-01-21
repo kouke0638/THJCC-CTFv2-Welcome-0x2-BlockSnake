@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CTF Snake Game</title>
+    <!-- 載入 Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <!-- 主要樣式檔案 -->
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div id="snake-game-wrapper">
+        <!-- 遊戲容器 -->
+        <div id="snake-game-container">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div id="game-board"></div>
+            <button id="snake-game-button" onclick="startGame()">
+                <i class="fas fa-play"></i> Start Game
+            </button>
+            <div id="flag" class="flag"></div>
+            <div class="controls">
+                <span class="control-key"><i class="fas fa-arrow-up"></i></span>
+                <span class="control-key"><i class="fas fa-arrow-down"></i></span>
+                <span class="control-key"><i class="fas fa-arrow-left"></i></span>
+                <span class="control-key"><i class="fas fa-arrow-right"></i></span>
+            </div>
+            <div class="countdown-overlay">
+                <div class="countdown-text">3</div>
+            </div>
+            <div class="copied-tooltip">Copied to clipboard!</div>
+            <div class="game-over-overlay"></div>
+            <div id="game-over" class="game-over">
+                <div class="game-over-text">GAME OVER!</div>
+                <div class="game-over-subtitle">Final Score: <span id="final-score">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>
