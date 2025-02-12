@@ -1,0 +1,825 @@
+<div id="snake-game-wrapper">
+    <!-- snake game code -->
+    <style>
+        .time-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #383B3F 100%);
+            border: 3px solid transparent;
+            border-radius: 16px;
+            padding: 2rem 3rem; /* 增加內邊距 */
+            color: #fff;
+            font-size: 1.2rem;
+            max-width: 500px;
+            text-align: center;
+            box-shadow:
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 255, 135, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            transform: translateX(-50%);
+            z-index: 1000;
+
+        }
+        
+
+        .time-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg,
+                    transparent,
+                    rgba(0, 255, 135, 0.2),
+                    transparent);
+            transform: rotate(45deg);
+            animation: glimmer 3s linear infinite;
+        }
+
+        @keyframes glimmer {
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+
+        .time-info h4 {
+            margin: 0.5rem 0;
+            font-size: 1.4rem;
+            color: #00ff87;
+            text-shadow:
+                0 0 5px rgba(0, 255, 135, 0.5),
+                0 0 10px rgba(0, 255, 135, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            margin: 1rem 0; 
+
+        }
+
+        .time-info h4 i {
+            color: #60efff;
+            transform: scale(1.2);
+        }
+
+        .time-info p {
+            margin: 1rem 0; 
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.2rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: #60efff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(96, 239, 255, 0.1);
+        }
+
+        .social-links a:hover {
+            color: #00ff87;
+            background: rgba(96, 239, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(96, 239, 255, 0.2);
+        }
+
+        .social-links a i {
+            transform: scale(1.2);
+        }
+
+        #snake-game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 15px;
+        }
+
+        #snake-game-wrapper * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #snake-game-container {
+            position: relative;
+            margin-top: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            background-color: #383B3F;
+            padding: 2.5rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        #snake-game-container.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #snake-game-container:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        #game-board {
+            width: 400px;
+            height: 120px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            margin: 1.5rem auto;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .snake-part {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(45deg, #00ff87 0%, #60efff 100%);
+            position: absolute;
+            border-radius: 6px;
+            transition: all 0.1s linear;
+            box-shadow: 0 0 15px rgba(96, 239, 255, 0.5);
+        }
+
+        .snake-part:first-child {
+            background: linear-gradient(45deg, #ff3366 0%, #ff9933 100%);
+            border-radius: 8px;
+            transform: scale(1.1);
+        }
+
+        .food {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(45deg, #ff3366 0%, #ff99cc 100%);
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .score {
+            font-size: 2rem;
+            margin: 1rem 0;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            font-weight: bold;
+        }
+
+        .flag {
+            color: #00ff87;
+            font-weight: bold;
+            margin: 1rem 0;
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+            display: none;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
+            padding: 1rem;
+            background: rgba(0, 255, 135, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flag:hover {
+            background: rgba(0, 255, 135, 0.2);
+            transform: scale(1.05);
+        }
+
+        #snake-game-button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #00ff87 0%, #60efff 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 1.5rem auto;
+            display: block;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #snake-game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(96, 239, 255, 0.4);
+        }
+
+        #snake-game-button:active {
+            transform: translateY(0);
+        }
+
+        #snake-game-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem !important;
+        }
+
+        .control-key {
+            display: inline-block;
+            padding: 0.8rem !important;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            /* Added cursor pointer for better UX */
+        }
+
+        .control-key:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .control-key:active {
+            transform: translateY(0);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 999;
+            color: white;
+            font-size: 6rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .countdown-text {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem !important;
+            border-radius: 10px;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .countdown-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .countdown-overlay.active .countdown-text {
+            transform: scale(1);
+            animation: countdownPulse 1s ease infinite;
+        }
+
+        @keyframes countdownPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            border-radius: 20px;
+        }
+
+        .game-over-overlay.visible {
+            opacity: 1;
+            display: block;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff3366;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+            font-size: 3rem;
+            text-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .game-over-text {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 0;
+            position: relative;
+            transform: translateY(-50px);
+            opacity: 0;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .game-over-subtitle {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+            animation-delay: 0.3s;
+        }
+
+        .copied-tooltip {
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 135, 0.9);
+            color: #000;
+            padding: 1rem !important;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            animation: fadeInOut 1.5s ease;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.2rem;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+    <div class="time-info">
+        <h4><i class="fas fa-calendar-alt"></i>Details</h4>
+        <!-- <p>Start Time: 2025/4/19 8:00 UTC+8</p> -->
+        <p>Start Time: 2025/4/19 8:00 CST</p>
+        <!-- <p>End Time: 2025/4/20 20:00 UTC+8</p> -->
+        <p>End Time: 2025/4/20 20:00 CST</p>
+
+        <div class="text-center" style="display: flex; justify-content: center; align-items: center;">
+            <h4><b><code>Flag Format : THJCC{.*}</code></b></h4>
+        </div>
+        <div class="social-links">
+            <a href="https://www.instagram.com/thjcc.tw/" target="_blank">
+                <i class="fa-brands fa-instagram"></i> Instagram
+            </a>
+            <a href="https://discord.gg/PsQFGu3U" target="_blank">
+                <i class="fa-brands fa-discord"></i> Discord
+            </a>
+        </div>
+    </div>
+    <div id="snake-game-container">
+
+
+        <div class="score">Score: <span id="score">0</span></div>
+        <div id="game-board"></div>
+        <button id="snake-game-button" onclick="startGame()">
+            <i class="fas fa-play"></i> Start Game
+        </button>
+        <div id="flag" class="flag"></div>
+
+        <div class="controls">
+            <span class="control-key" id="up-key"><i class="fas fa-arrow-up"></i></span>
+            <span class="control-key" id="down-key"><i class="fas fa-arrow-down"></i></span>
+            <span class="control-key" id="left-key"><i class="fas fa-arrow-left"></i></span>
+            <span class="control-key" id="right-key"><i class="fas fa-arrow-right"></i></span>
+        </div>
+
+        <div class="countdown-overlay">
+            <div class="countdown-text">3</div>
+        </div>
+
+        <div class="copied-tooltip">Copied to clipboard!</div>
+
+        <div class="game-over-overlay"></div>
+        <div id="game-over" class="game-over">
+            <div class="game-over-text">GAME OVER!</div>
+            <div class="game-over-subtitle">Final Score: <span id="final-score">0</span></div>
+        </div>
+
+
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('snake-game-container').classList.add('show');
+            }, 200);
+        });
+
+        (function () {
+            const GRID_WIDTH = 20;
+            const GRID_HEIGHT = 6;
+            const CELL_SIZE = 20;
+            let snake = [{ x: 10, y: 3 }];
+            let food = { x: 15, y: 3 };
+            let direction = { x: 1, y: 0 };
+            let score = 0;
+            let gameInterval;
+            let isGameRunning = false;
+            let failCount = 0;
+            let countdownInterval;
+
+            const _0x1a2b3c = "THJCC{Sn4ke_G4me_Mast3r}";
+
+            // Add control button event listeners
+            document.getElementById('up-key').addEventListener('click', () => {
+                if (isGameRunning && !(direction.x === 0 && direction.y === 1)) {
+                    direction = { x: 0, y: -1 };
+                }
+            });
+
+            document.getElementById('down-key').addEventListener('click', () => {
+                if (isGameRunning && !(direction.x === 0 && direction.y === -1)) {
+                    direction = { x: 0, y: 1 };
+                }
+            });
+
+            document.getElementById('left-key').addEventListener('click', () => {
+                if (isGameRunning && !(direction.x === 1 && direction.y === 0)) {
+                    direction = { x: -1, y: 0 };
+                }
+            });
+
+            document.getElementById('right-key').addEventListener('click', () => {
+                if (isGameRunning && !(direction.x === -1 && direction.y === 0)) {
+                    direction = { x: 1, y: 0 };
+                }
+            });
+
+            function startCountdown(seconds, callback) {
+                const overlay = document.querySelector('.countdown-overlay');
+                const countdownText = overlay.querySelector('.countdown-text');
+                overlay.style.display = 'flex';
+
+                setTimeout(() => {
+                    overlay.classList.add('active');
+                }, 0);
+
+                let count = seconds;
+                countdownText.textContent = count;
+
+                countdownInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownText.textContent = count;
+                    } else {
+                        clearInterval(countdownInterval);
+                        overlay.classList.remove('active');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                            if (callback) callback();
+                        }, 300);
+                    }
+                }, 1000);
+            }
+
+            window.startGame = function () {
+                if (isGameRunning) {
+                    location.reload();
+                    return;
+                }
+
+                const overlay = document.querySelector('.game-over-overlay');
+                const gameOver = document.getElementById('game-over');
+
+                overlay.style.opacity = '0';
+                gameOver.style.opacity = '0';
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    gameOver.style.display = 'none';
+                }, 500);
+
+                const button = document.getElementById('snake-game-button');
+                button.innerHTML = '<i class="fas fa-redo"></i> Restart';
+                button.disabled = true;
+
+                snake = [{ x: 10, y: 3 }];
+                direction = { x: 1, y: 0 };
+                score = 0;
+                updateScore();
+                generateFood();
+                drawGame();
+                startCountdown(3, () => {
+                    isGameRunning = true;
+                    button.disabled = false;
+                    gameInterval = setInterval(gameLoop, 150);
+                });
+            }
+
+            function gameLoop() {
+                const newHead = {
+                    x: snake[0].x + direction.x,
+                    y: snake[0].y + direction.y
+                };
+
+                if (newHead.x < 0 || newHead.x >= GRID_WIDTH ||
+                    newHead.y < 0 || newHead.y >= GRID_HEIGHT) {
+                    gameOver();
+                    return;
+                }
+
+                for (let part of snake) {
+                    if (newHead.x === part.x && newHead.y === part.y) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                snake.unshift(newHead);
+
+                if (newHead.x === food.x && newHead.y === food.y) {
+                    score += 10;
+                    updateScore();
+                    if (score === 10000) {
+                        const flagElement = document.getElementById('flag');
+                        flagElement.innerHTML = _0x1a2b3c;
+                        flagElement.style.display = 'block';
+                        flagElement.addEventListener('click', async () => {
+                            try {
+                                await navigator.clipboard.writeText(_0x1a2b3c);
+                                const tooltip = document.querySelector('.copied-tooltip');
+                                tooltip.style.display = 'block';
+                                setTimeout(() => {
+                                    tooltip.style.display = 'none';
+                                }, 1500);
+                            } catch (err) {
+                                console.error('複製失敗:', err);
+                            }
+                        });
+                    }
+                    generateFood();
+                } else {
+                    snake.pop();
+                }
+
+                drawGame();
+            }
+
+            function generateFood() {
+                food = {
+                    x: Math.floor(Math.random() * GRID_WIDTH),
+                    y: Math.floor(Math.random() * GRID_HEIGHT)
+                };
+                while (snake.some(part => part.x === food.x && part.y === food.y)) {
+                    food = {
+                        x: Math.floor(Math.random() * GRID_WIDTH),
+                        y: Math.floor(Math.random() * GRID_HEIGHT)
+                    };
+                }
+            }
+
+            function drawGame() {
+                const board = document.getElementById('game-board');
+                board.innerHTML = '';
+
+                snake.forEach((part, index) => {
+                    const snakePart = document.createElement('div');
+                    snakePart.className = 'snake-part';
+                    snakePart.style.left = part.x * CELL_SIZE + 'px';
+                    snakePart.style.top = part.y * CELL_SIZE + 'px';
+                    if (index === 0) {
+                        snakePart.style.zIndex = '2';
+                    }
+                    board.appendChild(snakePart);
+                });
+
+                const foodElement = document.createElement('div');
+                foodElement.className = 'food';
+                foodElement.style.left = food.x * CELL_SIZE + 'px';
+                foodElement.style.top = food.y * CELL_SIZE + 'px';
+                board.appendChild(foodElement);
+            }
+
+            function updateScore() {
+                document.getElementById('score').textContent = score;
+            }
+
+            function gameOver() {
+                clearInterval(gameInterval);
+                clearInterval(countdownInterval);
+                isGameRunning = false;
+                failCount++;
+                document.getElementById('final-score').textContent = score;
+                const overlay = document.querySelector('.game-over-overlay');
+                const gameOver = document.getElementById('game-over');
+                overlay.style.display = 'block';
+                gameOver.style.display = 'block';
+                overlay.offsetHeight;
+                overlay.style.opacity = '1';
+                gameOver.style.opacity = '1';
+                const gameBoard = document.getElementById('game-board');
+                gameBoard.style.animation = 'shake 0.5s ease';
+                setTimeout(() => {
+                    gameBoard.style.animation = '';
+                }, 500);
+                const gameOverText = document.querySelector('.game-over-text');
+                const gameOverSubtitle = document.querySelector('.game-over-subtitle');
+                gameOverText.style.animation = 'none';
+                gameOverSubtitle.style.animation = 'none';
+                gameOverText.offsetHeight;
+                gameOverSubtitle.offsetHeight;
+                gameOverText.style.animation = 'slideIn 0.5s ease forwards';
+                gameOverSubtitle.style.animation = 'fadeIn 0.5s ease forwards';
+                gameOverSubtitle.style.animationDelay = '0.3s';
+                const waitTime = Math.min(failCount * 2, 10);
+                let timeLeft = waitTime;
+                const button = document.getElementById('snake-game-button');
+                button.disabled = true;
+                function updateCountdown() {
+                    if (timeLeft > 0) {
+                        gameOverSubtitle.innerHTML = `Final Score: <span id="final-score">${score}</span><br>Restart in ${timeLeft} seconds...`;
+                        timeLeft--;
+                        setTimeout(updateCountdown, 1000);
+                    } else {
+                        button.disabled = false;
+                        gameOverSubtitle.innerHTML = `Final Score: <span id="final-score">${score}</span>`;
+                        overlay.style.opacity = '0';
+                        gameOver.style.opacity = '0';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                            gameOver.style.display = 'none';
+                            overlay.style.opacity = '';
+                            gameOver.style.opacity = '';
+                        }, 500);
+                    }
+                }
+
+                updateCountdown();
+            }
+
+            document.addEventListener('keydown', (event) => {
+                if (!isGameRunning) return;
+
+                const keyMap = {
+                    'ArrowUp': { x: 0, y: -1 },
+                    'ArrowDown': { x: 0, y: 1 },
+                    'ArrowLeft': { x: -1, y: 0 },
+                    'ArrowRight': { x: 1, y: 0 },
+                    'w': { x: 0, y: -1 },
+                    's': { x: 0, y: 1 },
+                    'a': { x: -1, y: 0 },
+                    'd': { x: 1, y: 0 }
+                };
+
+                const newDirection = keyMap[event.key];
+                if (newDirection) {
+                    if (!(direction.x === -newDirection.x && direction.y === -newDirection.y)) {
+                        direction = newDirection;
+                    }
+                }
+            });
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
+    <script>
+        // BAN F12
+        document.onkeydown = function (e) {
+            if (e.keyCode === 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode === 85) {
+                return false;
+            }
+        };
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+        (function () {
+            let warning = 'bad bad';
+            console.log(warning);
+            console.clear();
+        })();
+    </script>
+</div>
